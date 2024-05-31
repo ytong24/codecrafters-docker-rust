@@ -27,7 +27,10 @@ fn main() -> Result<()> {
     std::fs::create_dir_all(dev_null.parent().unwrap())?;
     std::fs::File::create(dev_null)?;
 
+    // Change the root dir of current process, so that the child process will use the new root dir
     fs::chroot(tmp_root.path())?;
+    
+    unsafe { libc::unshare(libc::CLONE_NEWPID) };
 
     let output = std::process::Command::new(command)
         .args(command_args)
